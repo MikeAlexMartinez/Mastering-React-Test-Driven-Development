@@ -1,0 +1,11 @@
+.appointments-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.appointments-list {
+  max-width: 150px;
+  padding: 50px;
+}
+

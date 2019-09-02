@@ -9,6 +9,15 @@ import {
 
 describe('Appointment', () => {
   let container;
+  let customer = {
+    firstName: 'Ashley',
+    lastName: 'Mildred',
+    phoneNumber: '+01234567890'
+  };
+  let stylist = 'kim';
+  let service = 'Blow-dry';
+  let notes = 'Some notes';
+  let startsAt = new Date().setHours(11, 0);
 
   beforeEach(() => {
     container = document.createElement('div');
@@ -16,15 +25,38 @@ describe('Appointment', () => {
 
   const render = component => ReactDOM.render(component, container);
 
-  it('renders the customer first name', () => {
-    const customer = { firstName: 'Ashley' };
+  it('renders appointment in a table element', () => {
     render(<Appointment customer={customer} />);
-    expect(container.textContent).toMatch('Ashley');
+    expect(container.querySelector('table')).not.toBeNull();
+    expect(container.querySelector('table').children).toHaveLength(2);
   });
-  it('renders another customer first name', () => {
-    const customer = { firstName: 'Jordan' };
+
+  it('renders a table header with appointment time', () => {
+    render(<Appointment customer={customer} startsAt={startsAt} />);
+    const header = container.querySelector('thead');
+    expect(header).not.toBeNull();
+    expect(header.textContent).toBe('Today\'s appointment at 11:00');
+  });
+
+  it('renders tbody with 6 rows', () => {
     render(<Appointment customer={customer} />);
-    expect(container.textContent).toMatch('Jordan');
+    const body = container.querySelector('tbody');
+    expect(body).not.toBeNull();
+    expect(body.children).toHaveLength(6);
+  });
+
+  it('renders 6 expected table headings', () => {
+    render(<Appointment customer={customer} stylist={stylist} service={service} notes={notes} />);
+    const expectedValues = ['First Name', 'Last Name', 'Phone Number', 'Stylist', 'Service', 'Notes'];
+    const appointmentValues = [...container.querySelectorAll('th.heading')].map(node => node.textContent);
+    expect(appointmentValues).toEqual(expectedValues);
+  });
+
+  it('renders 6 expected table fields with customer info', () => {
+    render(<Appointment customer={customer} stylist={stylist} service={service} notes={notes} />);
+    const expectedValues = [customer.firstName, customer.lastName, customer.phoneNumber, stylist, service, notes];
+    const appointmentValues = [...container.querySelectorAll('td.field')].map(node => node.textContent);
+    expect(appointmentValues).toEqual(expectedValues);
   });
 });
 
@@ -45,12 +77,6 @@ describe('AppointmentsDayView', () => {
   it('renders a div with the right id', () => {
     render(<AppointmentsDayView appointments={[]} />);
     expect(container.querySelector('div#appointmentsDayView')).not.toBeNull();
-  });
-
-  it('renders multiple appointments in an ol element', () => {
-    render(<AppointmentsDayView appointments={appointments} />);
-    expect(container.querySelector('ol')).not.toBeNull();
-    expect(container.querySelector('ol').children).toHaveLength(2);
   });
 
   it('renders each appointment in a li', () => {
