@@ -24,10 +24,41 @@ const toShortDate = timestamp => {
   return `${day} ${dayOfMonth}`;
 }
 
+const mergeDateAndTime = (date, timeSlot) => {
+  const time = new Date(timeSlot);
+  return new Date(date).setHours(
+    time.getHours(),
+    time.getMinutes(),
+    time.getSeconds(),
+    time.getMilliseconds()
+  );
+};
+
+const RadioButtonIfAvailable = ({
+  availableTimeSlots,
+  date,
+  timeSlot
+}) => {
+  const startsAt = mergeDateAndTime(date, timeSlot);
+  if (availableTimeSlots.some(availableTimeSlot =>
+    availableTimeSlot.startsAt === mergeDateAndTime(date, timeSlot)
+  )) {
+    return (
+      <input
+        name="startsAt"
+        type="radio"
+        value={startsAt}
+      />
+    );
+  }
+  return null;
+}
+
 export const TimeSlotTable = ({
   salonOpensAt,
   salonClosesAt,
-  today
+  today,
+  availableTimeSlots
 }) => {
   const timeSlots = dailyTimeSlots(salonOpensAt, salonClosesAt);
   const dates = weeklyDateValues(today);
@@ -45,6 +76,15 @@ export const TimeSlotTable = ({
         {timeSlots.map(timeSlot => (
           <tr key={timeSlot}>
             <th>{toTimeValue(timeSlot)}</th>
+            {dates.map(date => (
+              <td key={date}>
+                <RadioButtonIfAvailable
+                  availableTimeSlots={availableTimeSlots}
+                  date={date}
+                  timeSlot={timeSlot}
+                />
+              </td>
+            ))}
           </tr>
         ))}
       </tbody>
@@ -58,6 +98,7 @@ export const AppointmentForm = ({
   salonOpensAt,
   salonClosesAt,
   today,
+  availableTimeSlots,
   onSubmit
 }) => {
   const [state, setService] = useState({ service });
@@ -89,6 +130,7 @@ export const AppointmentForm = ({
           today={today}
           salonOpensAt={salonOpensAt}
           salonClosesAt={salonClosesAt}
+          availableTimeSlots={availableTimeSlots}
         />
       </fieldset>
     </form>
@@ -96,6 +138,7 @@ export const AppointmentForm = ({
 }
 
 AppointmentForm.defaultProps = {
+  availableTimeSlots: [],
   salonOpensAt: 9,
   salonClosesAt: 19,
   today: new Date(),
