@@ -41,7 +41,7 @@ export const CustomerForm = ({ firstName, lastName, phoneNumber, onSubmit }) => 
           onChange={handleValueChange('phoneNumber')}
         />
       </fieldset>
-      <input type="submit" value="Add" />
+      <button type="submit">Add</button>
     </form>
   )
 };

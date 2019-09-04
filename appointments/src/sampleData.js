@@ -17,7 +17,7 @@ const at = hours => today.setHours(hours, 0);
 
 const stylists = ['Ashley', 'Jo', 'Pat', 'Sam'];
 
-const services = [
+export const services = [
   'Cut',
   'Blow-dry',
   'Cut & color',
@@ -56,7 +56,7 @@ const pickMany = (items, number) =>
     .fill(1)
     .map(() => items.pickRandom());
 
-const buildTimeSlots = () => {
+export const buildTimeSlots = () => {
   const today = new Date();
   const startTime = today.setHours(9, 0, 0, 0);
   const times = [...Array(7).keys()].map(day => {

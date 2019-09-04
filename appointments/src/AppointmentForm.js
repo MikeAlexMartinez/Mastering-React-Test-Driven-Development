@@ -53,7 +53,6 @@ const RadioButtonIfAvailable = ({
         value={startsAt}
         checked={isChecked}
         onChange={handleTimeSlotChange}
-        readOnly
       />
     );
   }
@@ -136,7 +135,7 @@ export const AppointmentForm = ({
         <select
           name="service"
           id="service"
-          value={service}
+          value={state.service}
           onChange={handleServiceChange}
         >
           <option />
@@ -151,10 +150,11 @@ export const AppointmentForm = ({
           salonOpensAt={salonOpensAt}
           salonClosesAt={salonClosesAt}
           availableTimeSlots={availableTimeSlots}
-          checkedTimeSlot={startsAt}
+          checkedTimeSlot={state.startsAt}
           handleTimeSlotChange={handleTimeSlotChange}
         />
       </fieldset>
+      <button type="submit">Add</button>
     </form>
   );
 }

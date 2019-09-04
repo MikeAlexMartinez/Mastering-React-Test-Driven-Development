@@ -218,21 +218,27 @@ describe('AppointmentForm', () => {
         { startsAt: today.setHours(9, 30, 0, 0) },
         { startsAt: today.setHours(12, 30, 0, 0) },
       ];
-      const selectedSlot = today.setHours(12, 30, 0, 0);
       render(
         <AppointmentForm
           today={today}
           availableTimeSlots={availableTimeSlots}
-          startsAt={selectedSlot}
+          startsAt={availableTimeSlots[0].startsAt}
           onSubmit={({ startsAt }) => expect(startsAt).toBe(availableTimeSlots[1].startsAt)}
         />
       );
       await ReactTestUtils.Simulate.change(startsAtField(1), {
         target: {
           value: availableTimeSlots[1].startsAt.toString(),
-          name: 'startAt'
+          name: 'startsAt'
         }});
       await ReactTestUtils.Simulate.submit(form('appointment'));
+      expect(startsAtField(0).checked).toBe(false);
     });
+  });
+
+  it('has a submit button', () => {
+    render(<AppointmentForm />);
+    const submitBtn = container.querySelector('button[type="submit"]');
+    expect(submitBtn).not.toBeNull();
   });
 });

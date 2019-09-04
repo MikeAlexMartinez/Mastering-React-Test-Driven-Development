@@ -99,7 +99,7 @@ describe('<CustomerForm />', () => {
 
   it('has a submit button', () => {
     render(<CustomerForm />);
-    const submitBtn = container.querySelector('input[type="submit"]');
+    const submitBtn = container.querySelector('button[type="submit"]');
     expect(submitBtn).not.toBeNull();
   });
 });
