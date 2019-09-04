@@ -100,7 +100,8 @@ describe('AppointmentForm', () => {
 
   describe('time slot table', () => {
     const timeSlotTable = () => container.querySelector('table#time-slots');
-    const startsAtField = index => container.querySelectorAll(`input[name="startsAt"]`)[index];
+    const startsAt = () => container.querySelectorAll(`input[name="startsAt"]`);
+    const startsAtField = index => startsAt()[index];
 
     it('renders a table for time slots', () => {
       render(<AppointmentForm />);
@@ -169,6 +170,69 @@ describe('AppointmentForm', () => {
       );
       expect(startsAtField(0).value).toEqual(availableTimeSlots[0].startsAt.toString());
       expect(startsAtField(1).value).toEqual(availableTimeSlots[1].startsAt.toString());
+    });
+
+    it('pre-selects an existing time slot with passed value', () => {
+      const today = new Date();
+      const availableTimeSlots = [
+        { startsAt: today.setHours(9, 0, 0, 0) },
+        { startsAt: today.setHours(9, 30, 0, 0) },
+        { startsAt: today.setHours(12, 30, 0, 0) },
+      ];
+      const selectedSlot = today.setHours(12, 30, 0, 0);
+      render(
+        <AppointmentForm
+          today={today}
+          availableTimeSlots={availableTimeSlots}
+          startsAt={selectedSlot}
+        />
+      );
+      expect(startsAtField(2).checked).toBe(true);
+    });
+
+    it('saves the existing selected timeslot on form submission', async () => {
+      expect.hasAssertions();
+      const today = new Date();
+      const availableTimeSlots = [
+        { startsAt: today.setHours(9, 0, 0, 0) },
+        { startsAt: today.setHours(9, 30, 0, 0) },
+        { startsAt: today.setHours(12, 30, 0, 0) },
+      ];
+      const selectedSlot = today.setHours(12, 30, 0, 0);
+      render(
+        <AppointmentForm
+          today={today}
+          availableTimeSlots={availableTimeSlots}
+          startsAt={selectedSlot}
+          onSubmit={({ startsAt }) => expect(startsAt).toBe(selectedSlot)}
+        />
+      );
+      await ReactTestUtils.Simulate.submit(form('appointment'));
+    });
+
+    it('saves the new selected timeslot on form submission', async () => {
+      expect.hasAssertions();
+      const today = new Date();
+      const availableTimeSlots = [
+        { startsAt: today.setHours(9, 0, 0, 0) },
+        { startsAt: today.setHours(9, 30, 0, 0) },
+        { startsAt: today.setHours(12, 30, 0, 0) },
+      ];
+      const selectedSlot = today.setHours(12, 30, 0, 0);
+      render(
+        <AppointmentForm
+          today={today}
+          availableTimeSlots={availableTimeSlots}
+          startsAt={selectedSlot}
+          onSubmit={({ startsAt }) => expect(startsAt).toBe(availableTimeSlots[1].startsAt)}
+        />
+      );
+      await ReactTestUtils.Simulate.change(startsAtField(1), {
+        target: {
+          value: availableTimeSlots[1].startsAt.toString(),
+          name: 'startAt'
+        }});
+      await ReactTestUtils.Simulate.submit(form('appointment'));
     });
   });
 });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 const toTimeValue = timestamp => new Date(timestamp).toTimeString().substring(0, 5);
 
@@ -37,17 +37,23 @@ const mergeDateAndTime = (date, timeSlot) => {
 const RadioButtonIfAvailable = ({
   availableTimeSlots,
   date,
-  timeSlot
+  timeSlot,
+  checkedTimeSlot,
+  handleTimeSlotChange
 }) => {
   const startsAt = mergeDateAndTime(date, timeSlot);
   if (availableTimeSlots.some(availableTimeSlot =>
     availableTimeSlot.startsAt === mergeDateAndTime(date, timeSlot)
   )) {
+    const isChecked = startsAt === checkedTimeSlot;
     return (
       <input
         name="startsAt"
         type="radio"
         value={startsAt}
+        checked={isChecked}
+        onChange={handleTimeSlotChange}
+        readOnly
       />
     );
   }
@@ -58,7 +64,9 @@ export const TimeSlotTable = ({
   salonOpensAt,
   salonClosesAt,
   today,
-  availableTimeSlots
+  availableTimeSlots,
+  handleTimeSlotChange,
+  checkedTimeSlot
 }) => {
   const timeSlots = dailyTimeSlots(salonOpensAt, salonClosesAt);
   const dates = weeklyDateValues(today);
@@ -82,6 +90,8 @@ export const TimeSlotTable = ({
                   availableTimeSlots={availableTimeSlots}
                   date={date}
                   timeSlot={timeSlot}
+                  checkedTimeSlot={checkedTimeSlot}
+                  handleTimeSlotChange={handleTimeSlotChange}
                 />
               </td>
             ))}
@@ -99,15 +109,25 @@ export const AppointmentForm = ({
   salonClosesAt,
   today,
   availableTimeSlots,
+  startsAt,
   onSubmit
 }) => {
-  const [state, setService] = useState({ service });
+  const [state, setAppointment] = useState({ service, startsAt });
 
   const handleServiceChange = ({ target }) =>
-    setService(state => ({
+    setAppointment(state => ({
       ...state,
       service: target.value
     }));
+
+  const handleTimeSlotChange = useCallback(
+    ({ target: { value }}) =>
+      setAppointment(state => ({
+        ...state,
+        startsAt: parseInt(value)
+      })),
+      []
+    );
 
   return (
     <form id="appointment" onSubmit={() => onSubmit(state)}>
@@ -131,6 +151,8 @@ export const AppointmentForm = ({
           salonOpensAt={salonOpensAt}
           salonClosesAt={salonClosesAt}
           availableTimeSlots={availableTimeSlots}
+          checkedTimeSlot={startsAt}
+          handleTimeSlotChange={handleTimeSlotChange}
         />
       </fieldset>
     </form>
