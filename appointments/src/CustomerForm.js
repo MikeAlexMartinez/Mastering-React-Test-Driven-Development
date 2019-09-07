@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 
-export const CustomerForm = ({ firstName, lastName, phoneNumber, onSubmit }) => {
+export const CustomerForm = ({
+  firstName,
+  lastName,
+  phoneNumber
+}) => {
   const [ customer, setCustomer ] = useState({ firstName, lastName, phoneNumber });
 
   const handleValueChange = field => ({ target }) =>
@@ -9,8 +13,17 @@ export const CustomerForm = ({ firstName, lastName, phoneNumber, onSubmit }) => 
       [field]: target.value
     }));
 
+  const handleSubmit = () => {
+    window.fetch('/customers', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(customer)
+    });
+  }
+
   return (
-    <form id="customer" onSubmit={() => onSubmit(customer)}>
+    <form id="customer" onSubmit={handleSubmit}>
       <fieldset>
         <label htmlFor="firstName">First Name</label>
         <input
