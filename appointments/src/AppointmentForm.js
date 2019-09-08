@@ -164,4 +164,8 @@ AppointmentForm.defaultProps = {
   salonOpensAt: 9,
   salonClosesAt: 19,
   today: new Date(),
+  selectableServices: [],
+  service: '',
+  startsAt: null,
+  onSubmit: () => {}
 }

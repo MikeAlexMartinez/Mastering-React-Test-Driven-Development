@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactTestUtils from 'react-dom/test-utils';
 import { createContainer } from './domManipulators';
+// @ts-ignore
 import { AppointmentForm, TimeSlotTable } from '../src/AppointmentForm';
 
 describe('AppointmentForm', () => {
@@ -93,6 +94,7 @@ describe('AppointmentForm', () => {
         />
       );
 
+      // @ts-ignore
       await ReactTestUtils.Simulate.change(getField('service'), { target: { value: services[0] }});
       await ReactTestUtils.Simulate.submit(form('appointment'))
     });
@@ -228,6 +230,7 @@ describe('AppointmentForm', () => {
       );
       await ReactTestUtils.Simulate.change(startsAtField(1), {
         target: {
+          // @ts-ignore
           value: availableTimeSlots[1].startsAt.toString(),
           name: 'startsAt'
         }});
