@@ -9,6 +9,7 @@ import { createContainer, withEvent } from './domManipulators';
 import { AppointmentForm } from '../src/AppointmentForm';
 
 describe('AppointmentForm', () => {
+  const customer = { id: 123 };
   let render,
     container,
     form,
@@ -53,18 +54,18 @@ describe('AppointmentForm', () => {
     elements(`input[name="startsAt"]`)[index];
 
   it('renders a form', () => {
-    render(<AppointmentForm />);
+    render(<AppointmentForm customer={customer} />);
     expect(form('appointment')).not.toBeNull();
   });
 
   it('has a submit button', () => {
-    render(<AppointmentForm />);
+    render(<AppointmentForm customer={customer} />);
     const submitButton = element('input[type="submit"]');
     expect(submitButton).not.toBeNull();
   });
 
   it('calls fetch with the right properties when submitting data', async () => {
-    render(<AppointmentForm />);
+    render(<AppointmentForm customer={customer} />);
     await submit(form('appointment'));
     expect(window.fetch).toHaveBeenCalledWith(
       '/appointments',
@@ -81,7 +82,7 @@ describe('AppointmentForm', () => {
     window.fetch.mockReturnValue(fetchResponseOk({}));
     const saveSpy = jest.fn();
 
-    render(<AppointmentForm onSave={saveSpy} />);
+    render(<AppointmentForm onSave={saveSpy} customer={customer} />);
     await submit(form('appointment'));
 
     expect(saveSpy).toHaveBeenCalled();
@@ -91,7 +92,7 @@ describe('AppointmentForm', () => {
     window.fetch.mockReturnValue(fetchResponseError());
     const saveSpy = jest.fn();
 
-    render(<AppointmentForm onSave={saveSpy} />);
+    render(<AppointmentForm onSave={saveSpy} customer={customer} />);
     await submit(form('appointment'));
 
     expect(saveSpy).not.toHaveBeenCalled();
@@ -100,7 +101,7 @@ describe('AppointmentForm', () => {
   it('prevents the default action when submitting the form', async () => {
     const preventDefaultSpy = jest.fn();
 
-    render(<AppointmentForm />);
+    render(<AppointmentForm customer={customer} />);
     await submit(form('appointment'), {
       preventDefault: preventDefaultSpy
     });
@@ -111,7 +112,7 @@ describe('AppointmentForm', () => {
   it('renders error message when fetch call fails', async () => {
     window.fetch.mockReturnValue(fetchResponseError());
 
-    render(<AppointmentForm />);
+    render(<AppointmentForm customer={customer} />);
     await submit(form('appointment'));
 
     expect(element('.error')).not.toBeNull();
@@ -124,7 +125,7 @@ describe('AppointmentForm', () => {
     window.fetch.mockReturnValueOnce(fetchResponseError());
     window.fetch.mockReturnValue(fetchResponseOk());
 
-    render(<AppointmentForm />);
+    render(<AppointmentForm customer={customer} />);
     await submit(form('appointment'));
     await submit(form('appointment'));
 
@@ -133,7 +134,7 @@ describe('AppointmentForm', () => {
 
   const itRendersAsASelectBox = fieldName => {
     it('renders as a select box', () => {
-      render(<AppointmentForm />);
+      render(<AppointmentForm customer={customer} />);
       expect(field('appointment', fieldName)).not.toBeNull();
       expect(field('appointment', fieldName).tagName).toEqual(
         'SELECT'
@@ -143,7 +144,7 @@ describe('AppointmentForm', () => {
 
   const itInitiallyHasABlankValueChosen = fieldName =>
     it('initially has a blank value chosen', () => {
-      render(<AppointmentForm />);
+      render(<AppointmentForm customer={customer} />);
       const firstNode = field('appointment', fieldName)
         .childNodes[0];
       expect(firstNode.value).toEqual('');
@@ -158,6 +159,7 @@ describe('AppointmentForm', () => {
     it('pre-selects the existing value', () => {
       render(
         <AppointmentForm
+          customer={customer}
           {...props}
           {...{ [fieldName]: existingValue }}
         />
@@ -172,7 +174,7 @@ describe('AppointmentForm', () => {
 
   const itRendersALabel = (fieldName, text) => {
     it('renders a label', () => {
-      render(<AppointmentForm />);
+      render(<AppointmentForm customer={customer} />);
       expect(labelFor(fieldName)).not.toBeNull();
       expect(labelFor(fieldName).textContent).toEqual(text);
     });
@@ -180,7 +182,7 @@ describe('AppointmentForm', () => {
 
   const itAssignsAnIdThatMatchesTheLabelId = fieldName => {
     it('assigns an id that matches the label id', () => {
-      render(<AppointmentForm />);
+      render(<AppointmentForm customer={customer} />);
       expect(field('appointment', fieldName).id).toEqual(
         fieldName
       );
@@ -191,6 +193,7 @@ describe('AppointmentForm', () => {
     it('saves existing value when submitted', async () => {
       render(
         <AppointmentForm
+          customer={customer}
           {...props}
           {...{ [fieldName]: 'value' }}
         />
@@ -207,6 +210,7 @@ describe('AppointmentForm', () => {
     it('saves new value when submitted', async () => {
       render(
         <AppointmentForm
+          customer={customer}
           {...props}
           {...{ [fieldName]: 'existingValue' }}
         />
@@ -244,7 +248,7 @@ describe('AppointmentForm', () => {
       const selectableServices = ['Cut', 'Blow-dry'];
 
       render(
-        <AppointmentForm selectableServices={selectableServices} />
+        <AppointmentForm selectableServices={selectableServices} customer={customer} />
       );
 
       const renderedServices = children(
@@ -278,6 +282,7 @@ describe('AppointmentForm', () => {
 
       render(
         <AppointmentForm
+          customer={customer}
           selectableServices={selectableServices}
           selectableStylists={selectableStylists}
           serviceStylists={serviceStylists}
@@ -308,13 +313,13 @@ describe('AppointmentForm', () => {
     ];
 
     it('renders a table for time slots', () => {
-      render(<AppointmentForm />);
+      render(<AppointmentForm customer={customer} />);
       expect(timeSlotTable()).not.toBeNull();
     });
 
     it('renders a time slot for every half an hour between open and close times', () => {
       render(
-        <AppointmentForm salonOpensAt={9} salonClosesAt={11} />
+        <AppointmentForm salonOpensAt={9} salonClosesAt={11} customer={customer} />
       );
       const timesOfDay = timeSlotTable().querySelectorAll(
         'tbody >* th'
@@ -326,7 +331,7 @@ describe('AppointmentForm', () => {
     });
 
     it('renders an empty cell at the start of the header row', () => {
-      render(<AppointmentForm />);
+      render(<AppointmentForm customer={customer} />);
       const headerRow = timeSlotTable().querySelector(
         'thead > tr'
       );
@@ -335,7 +340,7 @@ describe('AppointmentForm', () => {
 
     it('renders a week of available dates', () => {
       const today = new Date(2018, 11, 1);
-      render(<AppointmentForm today={today} />);
+      render(<AppointmentForm today={today} customer={customer} />);
       const dates = timeSlotTable().querySelectorAll(
         'thead >* th:not(:first-child)'
       );
@@ -348,6 +353,7 @@ describe('AppointmentForm', () => {
     it('renders a radio button for each time slot', () => {
       render(
         <AppointmentForm
+          customer={customer}
           availableTimeSlots={availableTimeSlots}
           today={today}
         />
@@ -362,7 +368,7 @@ describe('AppointmentForm', () => {
     });
 
     it('does not render radio buttons for unavailable time slots', () => {
-      render(<AppointmentForm availableTimeSlots={[]} />);
+      render(<AppointmentForm availableTimeSlots={[]} customer={customer} />);
       const timesOfDay = timeSlotTable().querySelectorAll('input');
       expect(timesOfDay).toHaveLength(0);
     });
@@ -370,6 +376,7 @@ describe('AppointmentForm', () => {
     it('sets radio button values to the startsAt value of the corresponding appointment', () => {
       render(
         <AppointmentForm
+          customer={customer}
           availableTimeSlots={availableTimeSlots}
           today={today}
         />
@@ -385,6 +392,7 @@ describe('AppointmentForm', () => {
     it('pre-selects the existing value', () => {
       render(
         <AppointmentForm
+          customer={customer}
           availableTimeSlots={availableTimeSlots}
           today={today}
           startsAt={availableTimeSlots[0].startsAt}
@@ -396,6 +404,7 @@ describe('AppointmentForm', () => {
     it('saves existing value when submitted', async () => {
       render(
         <AppointmentForm
+          customer={customer}
           availableTimeSlots={availableTimeSlots}
           today={today}
           startsAt={availableTimeSlots[0].startsAt}
@@ -411,6 +420,7 @@ describe('AppointmentForm', () => {
     it('saves new value when submitted', async () => {
       render(
         <AppointmentForm
+          customer={customer}
           availableTimeSlots={availableTimeSlots}
           today={today}
           startsAt={availableTimeSlots[0].startsAt}
@@ -444,6 +454,7 @@ describe('AppointmentForm', () => {
 
       render(
         <AppointmentForm
+          customer={customer}
           availableTimeSlots={availableTimeSlots}
           today={today}
         />
@@ -461,6 +472,14 @@ describe('AppointmentForm', () => {
       expect(
         cells[7].querySelector('input[type="radio"]')
       ).toBeNull();
+    });
+
+    it('passes the customer id to fetch when submitting', async () => {
+      render(<AppointmentForm customer={customer} />);
+      await submit(form('appointment'));
+      expect(requestBodyOf(window.fetch)).toMatchObject({
+        customer: customer.id
+      });
     });
   });
 });

@@ -43,46 +43,39 @@ describe('AppointmentsDayViewLoader', () => {
     );
   });
 
-  it('initially passes no data to AppointmentsDayView', async () => {
+  it.skip('initially passes no data to AppointmentsDayView', async () => {
     await renderAndWait(<AppointmentsDayViewLoader />);
 
     expect(AppointmentsDayViewExports.AppointmentsDayView)
       .toHaveBeenCalledWith({ appointments: [] }, expect.anything());
   });
-  
-  // it('fetches data when component is mounted', async () => {
-  //   await renderAndWait(<AppointmentsDayViewLoader />);
 
-  //   expect(window.fetch).toHaveBeenCalledWith(
-  //     '/availableTimeSlots',
-  //     expect.objectContaining({
-  //       method: 'GET',
-  //       credentials: 'same-origin',
-  //       headers: { 'Content-Type': 'application/json' },
-  //     })
-  //   );
-  // });
+  it('displays time slots that are fetched on mount', async () => {
+    await renderAndWait(<AppointmentsDayViewLoader />)
+  });
 
-  // it('initially passed no data to the AppointmentForm', async () => {
-  //   await renderAndWait(<AppointmentsDayViewLoader />);
+  it('re-requests appointment when today prop changes', async () => {
+    const tomorrow = new Date(today);
+    tomorrow.setHours(24);
+    const from = tomorrow.setHours(0, 0, 0, 0);
+    const to = tomorrow.setHours(23, 59, 59, 999);
+    await renderAndWait(<AppointmentsDayViewLoader today={today} />);
+    await renderAndWait(<AppointmentsDayViewLoader today={tomorrow} />);
 
-  //   expect(AppointmentFormExports.AppointmentForm).toHaveBeenCalledWith(
-  //     { availableTimeSlots: [] },
-  //     expect.anything()
-  //   );
-  // });
+    expect(window.fetch).toHaveBeenLastCalledWith(
+      `/appointments/${from}-${to}`,
+      expect.anything()
+    );
+  });
 
-  // it('displays time slots that are fetched on mount', async () => {
-  //   await renderAndWait(<AppointmentsDayViewLoader />);
-
-  //   expect(AppointmentFormExports.AppointmentForm)
-  //     .toHaveBeenCalledWith(
-  //       {
-  //         availableTimeSlots
-  //       },
-  //       expect.anything()
-  //     );
-  // });
+  it('passes props through to children', async () => {
+    await renderAndWait(<AppointmentsDayViewLoader testProps={123} />);
+    expect(AppointmentsDayViewExports.AppointmentsDayView)
+      .toHaveBeenCalledWith(
+        expect.objectContaining({ testProps: 123 }),
+        expect.anything()
+      );
+  });
 
   afterEach(() => {
     window.fetch.mockRestore();
