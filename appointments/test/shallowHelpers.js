@@ -1,13 +1,13 @@
 import React from 'react';
 import ShallowRenderer from 'react-test-renderer/shallow';
 
-export const type = typeName => element => element.type === typeName;
-export const id = id => element => element.props && element.props.id === id;
-export const className = className => element => element.props.className === className;
-export const click = element => element.props.onClick();
+export const type = typeName => element => element && element.type === typeName;
+export const id = id => element => element && element.props && element.props.id === id;
+export const className = className => element => element && element.props && element.props.className === className;
+export const click = element => element && element.props.onClick();
 
 export const childrenOf = element => {
-  if (typeof element === 'string' || !element.props.children) {
+  if (typeof element === 'string' || !element || !element.props || !element.props.children) {
     return [];
   }
   const {
