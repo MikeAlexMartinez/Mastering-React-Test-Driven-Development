@@ -89,4 +89,52 @@ describe('CustomerSearch', () => {
     expect(elements('td')[0].textContent).toEqual('Next');
   });
 
+  // Previous
+  it('has a previous button', async () => {
+    await renderAndWait(<CustomerSearch />);
+    expect(element('button#previous-page')).not.toBeNull();
+  });
+
+  it('moves back to the first page when the previous button is clicked', async () => {
+    window.fetch.mockReturnValue(fetchResponseOk(tenCustomers));
+    await renderAndWait(<CustomerSearch />);
+    await clickAndWait(element('button#next-page'));
+    await clickAndWait(element('button#previous-page'));
+    expect(window.fetch).toHaveBeenLastCalledWith(
+      '/customers',
+      expect.anything()
+    );
+  });
+
+  const anotherTenCustomers = Array.from('ABCDEFGHIJ', id => ({ id }));
+
+  it('moves back on page when clicking previous after multiple clicks of the next button', async () => {
+    window.fetch
+      .mockReturnValueOnce(fetchResponseOk(tenCustomers))
+      .mockReturnValue(fetchResponseOk(anotherTenCustomers));
+    await renderAndWait(<CustomerSearch />)
+    await clickAndWait(element('button#next-page'));
+    await clickAndWait(element('button#next-page'));
+    await clickAndWait(element('button#previous-page'));
+    expect(window.fetch).toHaveBeenLastCalledWith(
+      '/customers?after=9',
+      expect.anything()
+    );
+  })
+
+  it('moves back multiple pages', async () => {
+    window.fetch
+      .mockReturnValueOnce(fetchResponseOk(tenCustomers))
+      .mockReturnValue(fetchResponseOk(anotherTenCustomers));
+    await renderAndWait(<CustomerSearch />)
+    await clickAndWait(element('button#next-page'));
+    await clickAndWait(element('button#next-page'));
+    await clickAndWait(element('button#previous-page'));
+    await clickAndWait(element('button#previous-page'));
+    expect(window.fetch).toHaveBeenLastCalledWith(
+      '/customers',
+      expect.anything()
+    );
+  })
+  
 });
