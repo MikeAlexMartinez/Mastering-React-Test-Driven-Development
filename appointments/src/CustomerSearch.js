@@ -20,16 +20,27 @@ const SearchButtons = ({ handleNext, handlePrevious }) => (
   </div>
 )
 
+const searchParams = (after, searchTerm) => {
+  let pairs = [];
+  if (after) { pairs.push(`after=${after}`); }
+  if (searchTerm) { pairs.push(`searchTerm=${searchTerm}`); }
+  if (pairs.length > 0) {
+    return `?${pairs.join('&')}`;
+  }
+  return '';
+}
+
 export const CustomerSearch = () => {
-  const [queryStrings, setQueryStrings] = useState([]);
+  const [lastRowIds, setLastRowIds] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
-      let queryString = queryStrings.length > 0
-        ? queryStrings[queryStrings.length - 1]
-        : '';
-
+      let after;
+      if (lastRowIds.length > 0)
+        after = lastRowIds[lastRowIds.length - 1];
+      const queryString = searchParams(after, searchTerm);
       const result = await window.fetch(`/customers${queryString}`, {
         method: 'GET',
         credentials: 'same-origin',
@@ -38,20 +49,26 @@ export const CustomerSearch = () => {
       setCustomers(await result.json());
     };
     fetchData();
-  }, [queryStrings]);
+  }, [lastRowIds, searchTerm]);
 
   const handleNext = useCallback(async () => {
-    const after = customers[customers.length - 1].id;
-    const newQueryString = `?after=${after}`;
-    setQueryStrings([...queryStrings, newQueryString]);
-  }, [customers, queryStrings]);
+    const currentLastRowId = customers[customers.length - 1].id;
+    setLastRowIds([...lastRowIds, currentLastRowId]);
+  }, [customers, lastRowIds]);
 
   const handlePrevious = useCallback(() =>
-    setQueryStrings(queryStrings.slice(0, -1))
-  , [queryStrings]);
+    setLastRowIds(lastRowIds.slice(0, -1))
+  , [lastRowIds]);
+
+  const handleSearchTextChanged = ({ target: { value }}) => setSearchTerm(value);
 
   return (
     <React.Fragment>
+      <input
+        placeholder="Enter filter text"
+        value={searchTerm}
+        onChange={handleSearchTextChanged}
+      />
       <SearchButtons handleNext={handleNext} handlePrevious={handlePrevious} />
       <table>
         <thead>

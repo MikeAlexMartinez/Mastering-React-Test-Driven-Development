@@ -5,7 +5,7 @@ import { CustomerSearch } from '../src/CustomerSearch';
 import { fetchResponseOk } from './spyHelpers';
 
 describe('CustomerSearch', () => {
-  let renderAndWait, container, element, elements, clickAndWait;
+  let renderAndWait, container, element, elements, clickAndWait, changeAndWait;
 
   beforeEach(() => {
     ({
@@ -13,7 +13,8 @@ describe('CustomerSearch', () => {
       clickAndWait,
       container,
       element,
-      elements
+      elements,
+      changeAndWait,
     } = createContainer());
     jest
       .spyOn(window, 'fetch')
@@ -136,5 +137,36 @@ describe('CustomerSearch', () => {
       expect.anything()
     );
   })
-  
+
+  it('has a search input field with a placeholder', async () => {
+    await renderAndWait(<CustomerSearch />);
+    expect(element('input')).not.toBeNull();
+    expect(element('input').getAttribute('placeholder')).toEqual('Enter filter text');
+  });
+
+  it('performs a search when the search term is changed', async () => {
+    await renderAndWait(<CustomerSearch />);
+    await changeAndWait(
+      element('input'),
+      withEvent('input', 'name')
+    );
+    expect(window.fetch).toHaveBeenLastCalledWith(
+      '/customers?searchTerm=name',
+      expect.anything()
+    );
+  });
+
+  it('includes search term when moving to next page', async () => {
+    window.fetch.mockReturnValue(fetchResponseOk(tenCustomers));
+    await renderAndWait(<CustomerSearch />);
+    await changeAndWait(
+      element('input'),
+      withEvent('input', 'name')
+    );
+    await clickAndWait(element('button#next-page'));
+    expect(window.fetch).toHaveBeenLastCalledWith(
+      `/customers?after=9&searchTerm=name`,
+      expect.anything()
+    );
+  });
 });
