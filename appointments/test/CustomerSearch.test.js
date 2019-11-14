@@ -188,4 +188,18 @@ describe('CustomerSearch', () => {
     await renderAndWait(<CustomerSearch renderCustomerActions={actionSpy} />);
     expect(actionSpy).toHaveBeenCalledWith(oneCustomer[0]);
   });
+
+  it('should disable the next button if there are fewer than 10 items listed', async () => {
+    window.fetch.mockReturnValueOnce(fetchResponseOk(oneCustomer));
+    await renderAndWait(<CustomerSearch />);
+    const button = element('button#next-page');
+    expect(button.disabled).toBe(true)
+  });
+
+  it('should disable the previous button when on the first page', async () => {
+    window.fetch.mockReturnValueOnce(fetchResponseOk(oneCustomer));
+    await renderAndWait(<CustomerSearch />);
+    const button = element('button#previous-page');
+    expect(button.disabled).toBe(true);
+  })
 });

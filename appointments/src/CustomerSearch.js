@@ -9,12 +9,12 @@ const CustomerRow = ({ customer, renderCustomerActions }) => (
   </tr>
 )
 
-const SearchButtons = ({ handleNext, handlePrevious }) => (
+const SearchButtons = ({ handleNext, handlePrevious, isLast, isFirst }) => (
   <div className="button-bar">
-    <button role="button" id="previous-page" onClick={() => handlePrevious()}>
+    <button disabled={isFirst} role="button" id="previous-page" onClick={() => handlePrevious()}>
       Previous
     </button>
-    <button role="button" id="next-page" onClick={() => handleNext()}>
+    <button disabled={isLast} role="button" id="next-page" onClick={() => handleNext()}>
       Next
     </button>
   </div>
@@ -62,6 +62,9 @@ export const CustomerSearch = ({ renderCustomerActions }) => {
 
   const handleSearchTextChanged = ({ target: { value }}) => setSearchTerm(value);
 
+  const isFirst = lastRowIds.length === 0;
+  const isLast = customers.length < 10;
+
   return (
     <React.Fragment>
       <input
@@ -69,7 +72,12 @@ export const CustomerSearch = ({ renderCustomerActions }) => {
         value={searchTerm}
         onChange={handleSearchTextChanged}
       />
-      <SearchButtons handleNext={handleNext} handlePrevious={handlePrevious} />
+      <SearchButtons
+        handleNext={handleNext}
+        handlePrevious={handlePrevious}
+        isFirst={isFirst}
+        isLast={isLast}
+      />
       <table>
         <thead>
           <tr>
